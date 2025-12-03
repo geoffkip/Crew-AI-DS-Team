@@ -4,13 +4,14 @@ This project implements an autonomous Data Science team using [CrewAI](https://c
 
 ## 🤖 The Team
 
-The crew consists of 5 specialized agents:
+The crew consists of 6 specialized agents:
 
 1.  **Project Intake Manager**: Validates project requirements and business value.
 2.  **Scrum Master**: Manages project flow and creates Jira tickets.
-3.  **Data Engineer**: Generates and cleans synthetic datasets.
-4.  **Senior Data Scientist**: Trains Random Forest models and analyzes feature importance.
-5.  **Presentation Designer**: Creates PowerPoint slides summarizing the findings.
+3.  **Senior Project Manager**: Creates a comprehensive technical project plan (`project_plan.md`).
+4.  **Data Engineer**: Inspects, cleans, and prepares datasets using custom Python code.
+5.  **Senior Data Scientist**: Analyzes data, performs statistical analyses, and builds predictive models using custom Python code.
+6.  **Presentation Designer**: Creates PowerPoint slides summarizing the findings.
 
 ## 🛠️ Prerequisites
 

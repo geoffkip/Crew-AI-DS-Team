@@ -1,5 +1,7 @@
 import os
+import sys
 import pandas as pd
+from io import StringIO
 from pptx import Presentation
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
@@ -20,50 +22,46 @@ class TeamTools:
             f.write(content)
         return f"File saved: {filename}"
 
-    @tool("Create & Clean Data")
-    def create_data(filename: str):
-        """Creates a dummy dataset for churn prediction, cleans it, and saves it."""
-        # Generating synthetic data
-        data = {
-            'Age': [25, 30, 45, 35, 50, 23, 60, 48, 33, 29, 22, 55],
-            'Annual_Spend': [1200, 3000, 5000, 2500, 6000, 1000, 7000, 5500, 2800, 2900, 800, 6200],
-            'Support_Calls': [1, 0, 0, 1, 0, 5, 0, 0, 1, 0, 4, 0],
-            'Churn': [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0] # 1 = Churn (Left), 0 = Stayed
-        }
-        df = pd.DataFrame(data)
-        # Mock cleaning: ensure no negative numbers
-        df = df[df['Annual_Spend'] > 0] 
-        df.to_csv(filename, index=False)
-        return f"Clean dataset created at: {filename}"
-
-    @tool("Train Random Forest")
-    def train_model(csv_file: str):
+    @tool("Inspect CSV")
+    def inspect_csv(file_path: str):
         """
-        Trains a Random Forest Classifier on the CSV data.
-        Target column must be 'Churn'. 
-        Returns accuracy score and feature importance.
+        Reads the first 5 rows and data types of a CSV file.
+        Useful for understanding the dataset structure before cleaning or analysis.
+        Input: file_path (str)
         """
         try:
-            df = pd.read_csv(csv_file)
-            X = df.drop('Churn', axis=1)
-            y = df['Churn']
-
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-            
-            # Initialize and train Random Forest
-            clf = RandomForestClassifier(n_estimators=100, random_state=42)
-            clf.fit(X_train, y_train)
-            
-            # Predict
-            preds = clf.predict(X_test)
-            acc = accuracy_score(y_test, preds)
-            
-            # Get Feature Importance
-            importances = dict(zip(X.columns, clf.feature_importances_))
-            
-            return f"Model Trained. Accuracy: {acc:.2f}. Feature Importance: {importances}"
+            df = pd.read_csv(file_path)
+            buffer = StringIO()
+            df.info(buf=buffer)
+            info_str = buffer.getvalue()
+            return f"First 5 rows:\n{df.head().to_string()}\n\nData Info:\n{info_str}\n\nDescription:\n{df.describe().to_string()}"
         except Exception as e:
-            return f"Error training model: {e}"
+            return f"Error reading CSV: {e}"
+
+    @tool("Execute Python Code")
+    def execute_python_code(code: str):
+        """
+        Executes the given Python code. 
+        The code must be valid Python. 
+        Standard output (print statements) is captured and returned.
+        Variables created in the code are NOT persisted between calls unless saved to files.
+        Useful for dynamic data cleaning, analysis, and plotting.
+        Input: code (str)
+        """
+        old_stdout = sys.stdout
+        redirected_output = sys.stdout = StringIO()
+        try:
+            # Pre-import common libraries for convenience
+            import pandas as pd
+            import numpy as np
+            import sklearn
+            
+            exec(code, globals())
+            sys.stdout = old_stdout
+            return f"Code executed successfully.\nOutput:\n{redirected_output.getvalue()}"
+        except Exception as e:
+            sys.stdout = old_stdout
+            return f"Error executing code: {e}"
 
     @tool("Generate PowerPoint")
     def create_pptx(title: str, summary: str, findings: str):
@@ -72,7 +70,7 @@ class TeamTools:
 
         # Slide 1: Title
         slide = prs.slides.add_slide(prs.slide_layouts[0])
-        slide.shapes.title.text = "Project Update: Churn Analysis"
+        slide.shapes.title.text = "Project Update: Data Analysis"
         slide.placeholders[1].text = title
 
         # Slide 2: Summary
@@ -127,6 +125,15 @@ def get_intake_crew(api_key, request):
         llm=gemini_flash
     )
 
+    pm = Agent(
+        role='Senior Project Manager',
+        goal='Create a comprehensive project plan.',
+        backstory="You are an experienced PM who translates business needs into technical tasks. You ensure the Data Engineer and Data Scientist have clear instructions.",
+        tools=[TeamTools.save_file],
+        verbose=True,
+        llm=gemini_pro
+    )
+
     task_intake = Task(
         description=f"Review request: '{request}'. Approve if valid.",
         expected_output="Approval decision.",
@@ -139,28 +146,39 @@ def get_intake_crew(api_key, request):
         agent=scrum
     )
 
+    task_pm = Task(
+        description=f"Create a detailed 'project_plan.md' based on the request: '{request}'. Outline specific technical steps for data cleaning and analysis.",
+        expected_output="Confirmation of file creation.",
+        agent=pm
+    )
+
     return Crew(
-        agents=[intake, scrum],
-        tasks=[task_intake, task_scrum],
+        agents=[intake, scrum, pm],
+        tasks=[task_intake, task_scrum, task_pm],
         process=Process.sequential,
         verbose=True
     )
 
-def get_data_crew(api_key, csv_path):
+def get_data_crew(api_key, csv_path, request):
     gemini_pro, _ = init_llms(api_key)
 
     engineer = Agent(
         role='Data Engineer',
-        goal='Prepare clean datasets.',
-        backstory="You build robust pipelines. You create the CSV files for the team.",
-        tools=[TeamTools.create_data], # Note: In a real app, we'd pass the CSV path to a cleaning tool
+        goal='Prepare clean datasets based on requirements.',
+        backstory="You are an expert Python programmer. You inspect data and write custom code to clean it.",
+        tools=[TeamTools.inspect_csv, TeamTools.execute_python_code],
         verbose=True,
         llm=gemini_pro
     )
 
     task_eng = Task(
-        description=f"Create/Clean the dataset '{csv_path}'. Ensure columns are correct.",
-        expected_output="Confirmation that data is ready.",
+        description=f"""
+        1. Inspect the dataset at '{csv_path}'.
+        2. Write and execute Python code to clean the data based on this request: '{request}'.
+        3. Ensure the cleaned data is saved to 'cleaned_data.csv'.
+        4. Verify the file exists.
+        """,
+        expected_output="Confirmation that 'cleaned_data.csv' has been created and cleaned.",
         agent=engineer
     )
 
@@ -171,21 +189,26 @@ def get_data_crew(api_key, csv_path):
         verbose=True
     )
 
-def get_analysis_crew(api_key, csv_path):
+def get_analysis_crew(api_key, csv_path, request):
     gemini_pro, _ = init_llms(api_key)
 
     scientist = Agent(
         role='Senior Data Scientist',
-        goal='Build predictive models.',
-        backstory="You are an expert in Scikit-Learn. You interpret model accuracy and feature importance.",
-        tools=[TeamTools.train_model],
+        goal='Analyze data, perform statistical analyses and build predictive models if needed.',
+        backstory="You are an expert Data Scientist. You write custom Python code (sklearn, pandas) to solve problems.",
+        tools=[TeamTools.inspect_csv, TeamTools.execute_python_code],
         verbose=True,
         llm=gemini_pro
     )
 
     task_sci = Task(
-        description=f"Train a Random Forest on '{csv_path}'. Report the Accuracy and which feature is most important.",
-        expected_output="A summary of the model performance and key drivers.",
+        description=f"""
+        1. Inspect the cleaned dataset at '{csv_path}'.
+        2. Based on the request '{request}', write and execute Python code to perform the analysis or train a model.
+        3. If training a model, report accuracy/metrics.
+        4. If performing analysis, report key insights.
+        """,
+        expected_output="A summary of the analysis results, model performance, or key insights.",
         agent=scientist
     )
 
@@ -209,7 +232,7 @@ def get_reporting_crew(api_key, analysis_result):
     )
 
     task_ppt = Task(
-        description=f"Create a PowerPoint. Title: 'Q4 Churn Analysis'. Use this summary: {analysis_result}",
+        description=f"Create a PowerPoint. Title: 'Project Analysis Results'. Use this summary: {analysis_result}",
         expected_output="Confirmation that .pptx is saved.",
         agent=slide_maker
     )

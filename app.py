@@ -21,6 +21,8 @@ if 'cleaned_data_path' not in st.session_state:
     st.session_state.cleaned_data_path = None
 if 'analysis_result' not in st.session_state:
     st.session_state.analysis_result = None
+if 'project_request' not in st.session_state:
+    st.session_state.project_request = ""
 
 # Tabs
 tab1, tab2, tab3, tab4 = st.tabs(["1. Intake & Scope", "2. Data Engineering", "3. Analysis", "4. Reporting"])
@@ -32,6 +34,7 @@ with tab1:
                                    value="Build a churn model to see why users leave")
     
     if st.button("Submit Request"):
+        st.session_state.project_request = project_request
         with st.spinner("Intake Manager & Scrum Master are working..."):
             crew = get_intake_crew(api_key, project_request)
             result = crew.kickoff()
@@ -44,7 +47,15 @@ with tab1:
                     st.session_state.jira_ticket = f.read()
                 st.subheader("Jira Ticket Created")
                 st.code(st.session_state.jira_ticket)
-                st.session_state.project_approved = True
+            
+            # Check for Project Plan
+            if os.path.exists("project_plan.md"):
+                with open("project_plan.md", "r") as f:
+                    st.session_state.project_plan = f.read()
+                st.subheader("Project Plan Created")
+                st.markdown(st.session_state.project_plan)
+                
+            st.session_state.project_approved = True
 
 # --- TAB 2: DATA ENGINEERING ---
 with tab2:
@@ -69,16 +80,16 @@ with tab2:
                     # Here we'll just let the agent 'create_data' which mocks cleaning
                     # To make it dynamic, we'd update the tool to read 'uploaded_data.csv'
                     
-                    # For now, we'll assume the agent generates/cleans 'churn_data.csv'
-                    crew = get_data_crew(api_key, "churn_data.csv") 
+                    # Pass the project request so the agent knows how to clean the data
+                    crew = get_data_crew(api_key, temp_path, st.session_state.project_request) 
                     result = crew.kickoff()
                     
                     st.success("Data Cleaned!")
                     st.write(result)
-                    st.session_state.cleaned_data_path = "churn_data.csv"
+                    st.session_state.cleaned_data_path = "cleaned_data.csv"
                     
-                    if os.path.exists("churn_data.csv"):
-                        clean_df = pd.read_csv("churn_data.csv")
+                    if os.path.exists("cleaned_data.csv"):
+                        clean_df = pd.read_csv("cleaned_data.csv")
                         st.dataframe(clean_df.head())
 
 # --- TAB 3: ANALYSIS ---
@@ -92,7 +103,7 @@ with tab3:
         
         if st.button("Run Analysis"):
             with st.spinner("Senior Data Scientist is training the model..."):
-                crew = get_analysis_crew(api_key, st.session_state.cleaned_data_path)
+                crew = get_analysis_crew(api_key, st.session_state.cleaned_data_path, st.session_state.project_request)
                 result = crew.kickoff()
                 
                 st.success("Analysis Complete!")
