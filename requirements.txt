@@ -6,3 +6,4 @@ langchain==0.3.7
 langchain-core==0.3.63
 scikit-learn==1.7.2
 litellm==1.80.7
+streamlit
