@@ -92,7 +92,7 @@ class TeamTools:
 
 def init_llms(api_key):
     gemini_pro = LLM(
-        model="gemini/gemini-2.5-pro",
+        model="gemini/gemini-2.5-flash",
         verbose=True,
         temperature=0.7,
         api_key=api_key

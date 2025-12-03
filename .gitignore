@@ -7,3 +7,4 @@ __pycache__/
 *.txt
 !requirements.txt
 !README.md
+!sample_churn_data.csv
