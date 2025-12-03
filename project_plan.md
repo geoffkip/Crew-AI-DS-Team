@@ -1,172 +1,94 @@
-# Project Plan: Churn Analysis and Prediction
+# Project Plan: Customer Churn Prediction and Retention Strategy
 
-## 1. Project Overview
+## 1. Project Goal
+To build a predictive churn model to identify at-risk users and inform targeted retention strategies, ultimately increasing customer lifetime value and reducing churn.
 
-**Business Request:** Analyze the churn data to identify why customers are leaving and predict future churn.
+## 2. Business Objectives & Value
+This project directly addresses the need for actionable insights to combat customer attrition, thereby safeguarding and growing revenue.
+*   **Quantifiable Churn Reduction:** Reduce overall customer churn rate by **5% within 6 months** post-model implementation.
+*   **Increased Customer Lifetime Value (CLTV):** Increase the average CLTV for targeted user segments by **10%** through proactive retention efforts.
+*   **Optimized Resource Allocation:** Improve the Return on Investment (ROI) of marketing and customer success efforts by focusing resources on high-impact retention strategies and at-risk customers.
+*   **Strategic Product Development:** Provide data-driven insights to the product team to prioritize feature enhancements or bug fixes that address root causes of churn.
 
-**Context:** Customer churn represents a critical business problem. By understanding the root causes of churn and proactively identifying at-risk customers, we aim to improve customer retention and inform strategic interventions, ultimately leading to significant business value.
+## 3. Actionable Outcomes
+Understanding "why users leave" will translate into concrete actions across various departments:
+*   **Targeted Retention Campaigns:** Development of a prioritized list of at-risk customers for proactive engagement by Customer Success and Marketing teams. This includes personalized offers, educational content, or direct outreach.
+*   **Product Improvement Roadmap:** Insights into key churn drivers will directly inform the product development roadmap, leading to enhancements that mitigate churn factors.
+*   **Improved Customer Experience:** By understanding pain points leading to churn, the project will contribute to a better overall customer experience.
+*   **Early Warning System:** Establishment of an automated system to flag high-risk customers, allowing for timely intervention.
 
-## 2. Project Goals & Objectives
+## 4. Measurable Success Metrics
+Project success will be rigorously measured against the following Key Performance Indicators (KPIs):
+*   **Business Metrics:**
+    *   **Churn Rate Reduction:** Track the percentage decrease in the overall monthly/quarterly churn rate.
+    *   **Retention Rate for At-Risk Cohorts:** Measure the increase in retention for customers identified as high-risk and subjected to retention interventions.
+    *   **Customer Lifetime Value (CLTV):** Monitor the average CLTV for new and existing customer cohorts over time.
+    *   **Conversion Rate of Retention Campaigns:** Assess the effectiveness of targeted campaigns by measuring the conversion rate (e.g., users accepting offers, re-engaging).
+*   **Model Performance Metrics:**
+    *   **Accuracy:** Overall correctness of predictions.
+    *   **Precision & Recall:** Ability to correctly identify churners (recall) and minimize false positives (precision).
+    *   **F1-Score:** Harmonic mean of precision and recall.
+    *   **AUC-ROC:** Measure of the model's ability to distinguish between churners and non-churners.
 
-**Business Goal:** Reduce customer churn and increase customer lifetime value by understanding underlying drivers and enabling proactive retention strategies.
+## 5. Stakeholder Engagement
+Key stakeholders will be actively engaged throughout the project lifecycle to ensure the model's output is integrated into operational processes and drives business value.
+*   **Marketing Team:** Will utilize churn insights and identified at-risk segments to design and execute targeted retention campaigns and personalized communications.
+*   **Product Team:** Will leverage insights into churn drivers to prioritize and inform the product roadmap, focusing on features and improvements that enhance user satisfaction and reduce attrition.
+*   **Customer Success Team:** Will use the model's predictions to proactively engage with high-risk customers, offering support, solutions, or personalized interventions to prevent churn.
+*   **Leadership/Executive Team:** Will monitor overall project progress, business impact, and ROI, ensuring alignment with strategic company goals.
+*   **Data Engineering Team:** Will support data acquisition, pipeline integration, and model deployment infrastructure.
 
-**Project Objectives:**
-*   **Identify Key Drivers:** Determine the primary factors contributing to customer churn through comprehensive data analysis.
-*   **Predict Churn:** Develop and deploy a predictive model capable of identifying customers at high risk of churning.
-*   **Actionable Insights:** Provide clear, data-backed insights and recommendations to business stakeholders for targeted interventions.
+## 6. Technical Tasks & Phased Approach
 
-## 3. Scope
+### Phase 1: Data Acquisition & Understanding (Weeks 1-2)
+*   **Task 1.1: Identify Relevant Data Sources:** Collaborate with stakeholders to identify all potential data sources containing user behavior, demographics, billing, support interactions, and product usage (e.g., user profiles database, usage logs, billing system, CRM, support ticket system).
+*   **Task 1.2: Data Extraction & Ingestion:** Develop scripts/ETL processes to extract and ingest raw data from identified sources into a centralized data lake or warehouse.
+*   **Task 1.3: Initial Data Exploration & Profiling:** Perform preliminary analysis to understand data types, distributions, potential relationships, and identify initial data quality issues (missing values, inconsistencies).
 
-**In-Scope:**
-*   Ingestion and cleaning of existing customer data (transactional, behavioral, demographic, subscription data).
-*   Exploratory Data Analysis (EDA) to understand churn patterns and characteristics.
-*   Feature engineering relevant to churn prediction.
-*   Development, training, and evaluation of a machine learning model for churn prediction.
-*   Identification of key features influencing churn.
-*   Generation of reports and dashboards summarizing findings and model predictions.
+### Phase 2: Data Cleaning & Preprocessing (Weeks 2-4)
+*   **Task 2.1: Handle Missing Values:** Implement strategies for managing missing data (e.g., imputation with mean/median/mode, predictive imputation, or selective deletion).
+*   **Task 2.2: Identify and Treat Outliers:** Detect and address anomalous data points that could skew model training.
+*   **Task 2.3: Data Type Conversion & Consistency Checks:** Ensure data types are appropriate for analysis and reconcile inconsistencies across different datasets.
+*   **Task 2.4: Feature Engineering:** Create new, informative features from existing raw data that are more predictive of churn. Examples include:
+    *   `days_since_last_login`
+    *   `total_sessions`
+    *   `average_session_duration`
+    *   `number_of_support_tickets`
+    *   `billing_cycle_changes`
+    *   `feature_usage_intensity`
+*   **Task 2.5: Categorical Data Encoding:** Convert categorical variables into a numerical format suitable for machine learning models (e.g., One-Hot Encoding, Label Encoding, Target Encoding).
+*   **Task 2.6: Data Scaling/Normalization:** Apply techniques (e.g., StandardScaler, MinMaxScaler) to standardize numerical features, preventing features with larger ranges from dominating the model.
+*   **Task 2.7: Define Churn Label:** Clearly define the churn event based on business rules (e.g., subscription cancellation, inactivity for X consecutive days, explicit account deletion).
 
-**Out-of-Scope:**
-*   Development of real-time churn prevention systems (e.g., automated outreach campaigns).
-*   A/B testing of specific retention strategies (will be a follow-up project).
-*   Integration of the predictive model into operational systems beyond initial API exposure (future phase).
+### Phase 3: Exploratory Data Analysis (EDA) (Weeks 4-5)
+*   **Task 3.1: Analyze Churn Rate Across Segments:** Investigate churn rates across various user demographics, usage patterns, subscription tiers, and geographic locations.
+*   **Task 3.2: Visualize Relationships with Churn:** Create visualizations (e.g., histograms, box plots, scatter plots, correlation matrices, heatmaps) to uncover relationships between individual features and the churn target variable.
+*   **Task 3.3: Identify Key Churn Drivers:** Based on EDA, hypothesize and identify potential significant factors contributing to churn, guiding feature selection for modeling.
 
-## 4. Key Deliverables
+### Phase 4: Model Development & Evaluation (Weeks 5-8)
+*   **Task 4.1: Data Splitting:** Divide the preprocessed dataset into training, validation, and test sets to ensure robust model evaluation.
+*   **Task 4.2: Model Selection:** Choose appropriate machine learning algorithms for churn prediction, considering interpretability and performance (e.g., Logistic Regression, Random Forest, Gradient Boosting Machines like XGBoost/LightGBM, Support Vector Machines).
+*   **Task 4.3: Model Training:** Train selected models on the training dataset.
+*   **Task 4.4: Hyperparameter Tuning:** Optimize model performance using techniques like Grid Search or Random Search on the validation set.
+*   **Task 4.5: Model Evaluation:** Assess model performance on the unseen test set using predefined metrics (Accuracy, Precision, Recall, F1-score, AUC-ROC). Special attention will be paid to Recall for identifying churners and Precision for minimizing false positives in retention campaigns.
+*   **Task 4.6: Feature Importance Analysis:** Analyze the contribution of each feature to the final model prediction, providing insights into the most critical churn drivers.
+*   **Task 4.7: Select Best Performing Model:** Choose the model that best balances performance metrics, interpretability, and business requirements.
 
-*   **Data Quality Report:** Summary of data cleaning efforts and remaining issues.
-*   **EDA Report/Dashboard:** Visualizations and insights from exploratory data analysis.
-*   **Feature Engineering Documentation:** Description of new features created.
-*   **Churn Prediction Model:** Trained and evaluated machine learning model.
-*   **Model Performance Report:** Metrics and interpretation of model accuracy, precision, recall, etc.
-*   **Key Churn Drivers Report:** Analysis of factors contributing to churn (e.g., feature importance).
-*   **Predictive Churn List:** List of at-risk customers with associated churn probability.
-*   **Project Summary Presentation:** Overview of findings, model performance, and recommendations.
+### Phase 5: Model Deployment & Monitoring (Weeks 8-10)
+*   **Task 5.1: Model Integration:** Integrate the chosen churn prediction model into the existing production data pipeline for automated, regular scoring of customer data.
+*   **Task 5.2: Develop Prediction & Insight Dashboard:** Create an interactive dashboard or reporting mechanism for stakeholders to visualize churn predictions, identify at-risk customers, and understand key churn drivers.
+*   **Task 5.3: Establish Model Monitoring System:** Implement automated monitoring for model performance drift, data drift, and concept drift to ensure the model remains accurate and relevant over time.
+*   **Task 5.4: Plan for Regular Model Retraining:** Define a schedule and process for periodic retraining of the model with fresh data to adapt to evolving user behavior and business conditions.
 
-## 5. Technical Tasks & Responsibilities
+## 7. High-Level Timeline
+*   **Phase 1: Data Acquisition & Understanding:** Weeks 1-2
+*   **Phase 2: Data Cleaning & Preprocessing:** Weeks 2-4
+*   **Phase 3: Exploratory Data Analysis (EDA):** Weeks 4-5
+*   **Phase 4: Model Development & Evaluation:** Weeks 5-8
+*   **Phase 5: Model Deployment & Monitoring:** Weeks 8-10 (Initial Deployment and setup)
 
-This section outlines specific steps for Data Engineers (DE) and Data Scientists (DS).
-
-### Phase 1: Data Ingestion & Initial Assessment
-
-**Objective:** Secure, understand, and profile raw churn-related data.
-
-*   **DE Task 1.1: Identify & Access Data Sources**
-    *   Identify all relevant data sources (e.g., CRM, transactional databases, web analytics, subscription management systems).
-    *   Establish secure connections and access permissions.
-*   **DE Task 1.2: Initial Data Ingestion**
-    *   Ingest raw data into a staging area (e.g., data lake, temporary database).
-    *   Perform initial schema inference and basic data type checks.
-*   **DS Task 1.3: Data Profiling & Assessment**
-    *   Conduct initial data profiling to understand data volume, cardinality, missing values, and basic distributions.
-    *   Identify potential data quality issues and inconsistencies.
-    *   Define 'churn' based on business rules (e.g., subscription cancellation, inactivity period).
-
-### Phase 2: Data Cleaning & Preprocessing (DE & DS Collaboration)
-
-**Objective:** Transform raw data into a clean, consistent, and analysis-ready format.
-
-*   **DE Task 2.1: Handle Missing Values**
-    *   Implement strategies for missing value imputation (e.g., mean, median, mode, forward/backward fill, K-NN imputation) or removal, based on DS guidance.
-*   **DE Task 2.2: Outlier Detection & Treatment**
-    *   Identify and manage outliers using statistical methods (e.g., IQR, Z-score) or domain knowledge, under DS direction.
-*   **DE Task 2.3: Data Type Conversion & Standardization**
-    *   Ensure consistent data types across all features (e.g., convert strings to numerical, ensure date formats).
-    *   Standardize categorical values (e.g., 'USA' vs 'U.S.A.').
-*   **DE Task 2.4: Data Aggregation & Structuring**
-    *   Aggregate granular data (e.g., daily transactions to weekly customer summaries) to create customer-centric records.
-    *   Merge disparate datasets into a unified customer churn dataset.
-*   **DE Task 2.5: Basic Feature Engineering**
-    *   Create simple aggregate features (e.g., total spend, number of logins, days since last activity) based on initial DS requirements.
-*   **DE Task 2.6: Data Validation & Quality Checks**
-    *   Implement data validation rules to ensure data integrity post-cleaning.
-    *   Generate a Data Quality Report.
-
-### Phase 3: Exploratory Data Analysis (EDA) & Advanced Feature Engineering (DS Focus)
-
-**Objective:** Gain deep insights into churn drivers and prepare features for model training.
-
-*   **DS Task 3.1: Descriptive Statistics & Distribution Analysis**
-    *   Calculate summary statistics for all features.
-    *   Analyze distributions of key variables, distinguishing between churned vs. non-churned customers.
-*   **DS Task 3.2: Churn Rate Analysis**
-    *   Calculate overall churn rate and segment churn rates (e.g., by demographic, product, subscription tier).
-*   **DS Task 3.3: Correlation Analysis**
-    *   Identify correlations between features and the churn target variable.
-    *   Detect multicollinearity among independent variables.
-*   **DS Task 3.4: Data Visualization**
-    *   Create compelling visualizations (e.g., histograms, box plots, scatter plots, churn funnels) to highlight churn patterns and relationships.
-    *   Identify potential churn indicators and segments.
-*   **DS Task 3.5: Advanced Feature Engineering**
-    *   Derive complex features from existing data (e.g., recency, frequency, monetary (RFM) scores, tenure, average transaction value, interaction terms).
-    *   Apply dimensionality reduction techniques if necessary (e.g., PCA).
-    *   Handle categorical variables (e.g., one-hot encoding, label encoding).
-
-### Phase 4: Model Development & Evaluation (DS Focus)
-
-**Objective:** Build, train, and evaluate a robust churn prediction model.
-
-*   **DS Task 4.1: Data Splitting**
-    *   Split the prepared dataset into training, validation, and test sets (e.g., 70/15/15 or 80/20).
-*   **DS Task 4.2: Algorithm Selection**
-    *   Research and select appropriate machine learning algorithms for binary classification (e.g., Logistic Regression, Random Forest, Gradient Boosting Machines, SVM, Neural Networks).
-*   **DS Task 4.3: Model Training & Hyperparameter Tuning**
-    *   Train selected models on the training data.
-    *   Perform hyperparameter tuning using techniques like GridSearchCV or RandomizedSearchCV.
-*   **DS Task 4.4: Model Evaluation**
-    *   Evaluate model performance on the test set using relevant metrics: Accuracy, Precision, Recall, F1-Score, ROC-AUC, PR-AUC.
-    *   Analyze confusion matrix to understand true positives, false positives, true negatives, false negatives.
-*   **DS Task 4.5: Model Interpretability**
-    *   Determine feature importance to identify key churn drivers using techniques like SHAP or LIME.
-    *   Generate explanations for model predictions.
-*   **DS Task 4.6: Model Selection & Finalization**
-    *   Select the best-performing model based on evaluation metrics and business context.
-    *   Finalize the model and serialize it for deployment.
-
-### Phase 5: Reporting & Recommendations (DS & DE Collaboration)
-
-**Objective:** Communicate findings and provide actionable recommendations.
-
-*   **DS Task 5.1: Generate Churn Driver Report**
-    *   Summarize key findings from EDA and feature importance analysis.
-    *   Provide insights into *why* customers are leaving.
-*   **DS Task 5.2: Generate Predictive Churn List**
-    *   Apply the final model to current customer data to generate a list of at-risk customers with churn probabilities.
-*   **DS Task 5.3: Develop Recommendations**
-    *   Translate insights into actionable business recommendations for retention strategies.
-*   **DE Task 5.4: Prepare for Model Deployment (Initial)**
-    *   Containerize the model (e.g., Docker) for potential future API deployment.
-    *   Set up basic infrastructure for model serving if required for initial testing.
-*   **DS Task 5.5: Project Summary Presentation**
-    *   Prepare and deliver a comprehensive presentation to stakeholders, covering project objectives, methodology, key findings, model performance, and recommendations.
-
-## 6. Team Roles & Responsibilities
-
-*   **Project Manager:** Overall project oversight, stakeholder communication, resource allocation.
-*   **Data Engineer (DE):** Data ingestion, pipeline development, data cleaning, data warehousing, basic feature engineering, model deployment infrastructure.
-*   **Data Scientist (DS):** Data profiling, advanced EDA, feature engineering, model development, training, evaluation, interpretation, insights generation.
-
-## 7. Success Criteria
-
-*   **Model Performance:** Achieve a minimum ROC-AUC score of 0.75 on the test set for the churn prediction model.
-*   **Insight Generation:** Clearly identify at least 3-5 primary drivers of customer churn.
-*   **Actionability:** Provide concrete, data-driven recommendations that can be directly translated into business strategies.
-*   **Stakeholder Satisfaction:** Positive feedback from business stakeholders on the clarity and utility of insights and predictions.
-
-## 8. Assumptions & Risks
-
-**Assumptions:**
-*   Access to all necessary customer data sources will be granted promptly.
-*   Data quality, while needing cleaning, is generally sufficient for analysis.
-*   Business subject matter experts (SMEs) will be available for clarification on data definitions and churn criteria.
-
-**Risks:**
-*   **Data Quality Issues:** Severely poor data quality could delay the project or limit model accuracy.
-*   **Data Availability:** Inability to access critical data sources could impact the comprehensiveness of the analysis.
-*   **Model Drift:** The model's predictive power may degrade over time due to changes in customer behavior or market conditions (mitigation: plan for regular monitoring and retraining).
-*   **Interpretability Challenges:** Complex models might be difficult to interpret, hindering the understanding of churn drivers (mitigation: prioritize interpretable models or use explainability techniques).
-
-## 9. Next Steps
-
-*   **Kick-off Meeting:** Schedule a kick-off meeting with the DE and DS teams to review this plan and assign initial tasks.
-*   **Data Source Confirmation:** DE to confirm access and availability of all identified data sources.
-*   **Initial Data Pull:** DE to perform initial data pulls into the staging environment.
-*   **Detailed Churn Definition:** DS to finalize the precise definition of churn with business stakeholders.
+## 8. Resources
+*   **Data Engineer:** Responsible for data source identification, extraction, ingestion, pipeline development, and model deployment infrastructure.
+*   **Data Scientist:** Responsible for data cleaning, preprocessing, feature engineering, exploratory data analysis, model selection, training, evaluation, and insights generation.
+*   **Business Analyst / Project Manager (Self):** Responsible for requirements gathering, stakeholder communication, project planning, monitoring, and impact analysis.
+*   **Stakeholder Teams (Marketing, Product, Customer Success):** Provide domain expertise, validate insights, and integrate model outputs into their operations.
