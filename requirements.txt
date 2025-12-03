@@ -1,0 +1,8 @@
+pandas==2.3.3
+python-pptx==1.0.2
+crewai[google-genai]==1.6.1
+langchain-google-genai==2.1.5
+langchain==0.3.7
+langchain-core==0.3.63
+scikit-learn==1.7.2
+litellm==1.80.7
